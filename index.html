@@ -153,14 +153,14 @@
 											<span class="notSelect" style="margin: 1%">{{frase}} :</span>
 											<b-form-input class="notSelect" style="width: 150px" v-model="cm" placeholder="Comando">
 											</b-form-input>
-											<button style="margin-left: 1%; height: 38px" type="button" v-on:click="" class="btn btn-primary btn-sm notSelect">Definir</button>
+											<button style="margin-left: 1%; height: 38px" type="button" v-on:click="definirComando()" class="btn btn-primary btn-sm notSelect">Definir</button>
 										</b-row>
 									</transition>
 
 								</b-col>
 
 								<b-col cols="2" class="notSelect">
-									<button style="margin: 1%" type="button" v-on:click="bloqText(); show = !show" class="btn btn-primary btn-sm pull-right">{{btnSE}}</button>
+									<button style="margin: 1%" type="button" v-on:click="bloqText();" class="btn btn-primary btn-sm pull-right">{{btnSE}}</button>
 								</b-col>
 							</b-row>
 
@@ -192,8 +192,8 @@
 						<b-col cols="12" id="save">
 							<div class="mt-3">
 								<b-button-group>
-									<b-button variant="info">ADD+</b-button>
-									<b-button variant="success">Save</b-button>
+									<b-button v-on:click = "adicionarMais()" variant="info">ADD+</b-button>
+									<b-button v-on:click = "gravarDados()" variant="success">Save</b-button>
 									<b-button variant="danger">Cancel</b-button>
 								</b-button-group>
 							</div>
@@ -231,15 +231,19 @@
 
         }],
         nextTodoId: 0,
-        // users: [{
-
-        // }],
         frase: '',
         editor: false,
         showDismissibleAlert: false, //Exibição do alerta de erros
         btnSE: 'Salvar',
         show: false,
-        cm: ''
+        cm: '',
+        entidades: [],
+        ini_index: '',
+        tam_entidade: '',
+        tr_data: {},
+        tr_datas: [],
+        full_file: {},
+        df_cm: []
       },
       methods: {
         //Metodo para guardar o texto selecionado
@@ -259,11 +263,66 @@
                 token: this.tk,
                 color: this.color
                 });
-                console.log(this.comand);
+                this.ini_index = this.frase.indexOf(this.selec);
+                this.tam_entidade = this.selec.length;
+                this.entidades.push([this.ini_index,this.tam_entidade,this.selec]);
+
                 }
                 
           }
           
+        },
+
+        gravarDados(){
+            
+            if(this.frase == ''){
+                console.log('nada preenchido!');
+                var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.tr_datas));
+                console.log(dataStr);
+            } 
+            else{
+                this.tr_data['content'] = this.frase;
+                this.tr_data['entities'] = this.entidades;
+                this.tr_datas.push(this.tr_data);
+                var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.tr_datas));
+                console.log(dataStr);
+
+                console.log(this.tr_datas);
+                this.comand = [{}];
+                this.frase = '';
+                this.entidades = [];
+                this.ini_index = '';
+                this.tam_entidade = '';
+                this.tr_data = {};
+                this.btnSE = 'Salvar';
+                this.editor = false;
+                this.tr_datas = [];
+                this.show = false;
+
+            }
+
+        },
+
+        adicionarMais(){
+            if(this.frase != '' || this.cm != '' || this.editor != false){
+                this.tr_data['content'] = this.frase;
+                this.tr_data['entities'] = this.entidades;
+                this.tr_datas.push(this.tr_data);
+                console.log(this.tr_datas);
+                this.comand = [{}];
+                this.frase = '';
+                this.entidades = [];
+                this.ini_index = '';
+                this.tam_entidade = '';
+                this.tr_data = {};
+                this.btnSE = 'Salvar';
+                this.editor = false;
+
+            }
+            else{
+                console.log('Nada preenchido!')
+            }
+
         },
 
         bloqText(){ //Metodo para alterar o valor do botão edit, save ou exibir alerta de erro
@@ -279,9 +338,20 @@
                 this.editor = true;
                 this.btnSE = 'Editar'
             }
+            if(this.editor == true){
+                this.show = true;
+            }
+            else{
+                this.show = false;
+            }
   
         },
 
+        definirComando(){
+            this.df_cm.push([this.frase,this.cm]);
+            console.log(this.df_cm);
+
+        }
 
         //Parte do codigo abaixo não será usada no momento | Serve para tratar o texto enviado pelo usuario, tirar excesso de espaço, valores null, etc
         // teste(text) {
