@@ -1,1 +1,1 @@
-# Site para auxiliar na nomeclatura de entidades spaCy
+# Site para auxiliar na nomenclatura de entidades spaCy
